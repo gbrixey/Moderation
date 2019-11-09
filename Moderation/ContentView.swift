@@ -21,6 +21,7 @@ struct ContentView: View {
             .navigationBarTitle(Text("moderation"), displayMode: .inline)
             .navigationBarItems(trailing: addButton)
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $showAddView) {
             AddView()
         }

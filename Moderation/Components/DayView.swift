@@ -11,11 +11,13 @@ struct DayView: View {
                 Text(day.date.displayString)
                     .padding(EdgeInsets(top: 20, leading: 0, bottom: 5, trailing: 0))
                 if totalStackCount > 0 {
-                    ForEach((0...(totalStackCount / 5)), id: \.self) { index in
+                    ForEach((0...(self.totalStackCount / 5)), id: \.self) { index in
                         self.hStack(at: index)
                     }
                 }
-                if day.possibleML == 0 {
+                if day.mL.count > maxStackCount {
+                    Text("…")
+                } else if day.possibleML == 0 {
                     Text("🚫")
                 }
                 Spacer()
@@ -26,8 +28,10 @@ struct DayView: View {
 
     // MARK: - Private
 
+    private let maxStackCount = 100
+
     private var totalStackCount: Int {
-        return day.mL.count + (day.possibleML ?? 0)
+        return min(maxStackCount, day.mL.count + (day.possibleML ?? 0))
     }
 
     private func hStack(at index: Int) -> some View {
