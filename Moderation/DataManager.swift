@@ -27,7 +27,9 @@ class DataManager: ObservableObject {
     }
 
     func add(mL: Int, type: DrinkType, onDate date: Date) {
-        self.mL[date] = (self.mL[date] ?? []) + [DrinkType](repeating: type, count: mL)
+        let existingML = self.mL[date] ?? []
+        let countToAdd = min(mL, maxMLDictValue - existingML.count)
+        self.mL[date] = existingML + [DrinkType](repeating: type, count: countToAdd)
         calculateDisplayData()
         saveToUserDefaults()
     }
@@ -36,6 +38,8 @@ class DataManager: ObservableObject {
 
     private let maxMLPerDay = 60
     private let maxMLPerWeek = 140
+    /// A practical upper limit on the size of the array values in the `mL` dict
+    private let maxMLDictValue = 1000
 
     private var mL: [Date: [DrinkType]] = [:]
     private let userDefaultsKey = "com.glenb.Moderation.DataManager.mL"
@@ -84,6 +88,12 @@ class DataManager: ObservableObject {
         if let data = UserDefaults.standard.object(forKey: userDefaultsKey) as? Data,
             let mL = try? JSONDecoder().decode([Date: [DrinkType]].self, from: data) {
             self.mL = mL
+        }
+        // Remove old data
+        for date in mL.keys {
+            if date.daysFromNow < -10 {
+                mL.removeValue(forKey: date)
+            }
         }
     }
 

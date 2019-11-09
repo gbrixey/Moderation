@@ -80,8 +80,8 @@ struct AddView: View {
         let abv = Double(self.abv) ?? 0
         let pureAlcoholML = Int(round(mL * (abv / 100)))
         let drinkType = DrinkType(rawValue: self.drinkType)!
-        let date = Date(daysFromNow: self.daysFromNow)
+        let date = Date(daysFromNow: daysFromNow)
         DataManager.shared.add(mL: pureAlcoholML, type: drinkType, onDate: date)
-        self.presentation.wrappedValue.dismiss()
+        presentation.wrappedValue.dismiss()
     }
 }
