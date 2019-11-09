@@ -1,2 +1,6 @@
 "add.button" = "ADD";
 "ml.placeholder" = "mL";
+"moderation" = "Moderation";
+"today" = "Today";
+"tomorrow" = "Tomorrow";
+"yesterday" = "Yesterday";

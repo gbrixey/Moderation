@@ -3,11 +3,13 @@ import SwiftUI
 /// View that records an amount of alcohol consumed.
 struct AddView: View {
     @Environment(\.presentationMode) var presentation
+    @State private var drinkType = 0
     @State private var daysFromNow = 0
-    @State private var amount = ""
+    @State private var mL = ""
 
     var body: some View {
         VStack(alignment: .center, spacing: 20) {
+            typePicker
             textField
             datePicker
             addButton
@@ -17,20 +19,30 @@ struct AddView: View {
 
     // MARK: - Private
 
+    private var typePicker: some View {
+        Picker("", selection: $drinkType) {
+            ForEach((0..<DrinkType.allCases.count), id: \.self) {
+                Text(String(drinkType: DrinkType(rawValue: $0)!))
+            }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .labelsHidden()
+        .padding([.top, .leading, .trailing], 20)
+    }
+
     /// Text field for the amount of alcohol in milliliters.
     private var textField: some View {
-        TextField(String(key: "ml.placeholder"), text: $amount)
+        TextField(String(key: "ml.placeholder"), text: $mL)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
             .frame(width: 100)
-            .padding([.top], 20)
     }
 
     /// Picker for selecting the date the alcohol was consumed.
     private var datePicker: some View {
         Picker("", selection: $daysFromNow) {
             ForEach((-6...0).reversed(), id: \.self) {
-                Text(DateFormatter.standard.string(from: Date(daysFromNow: $0)))
+                Text(Date(daysFromNow: $0).displayString)
             }
         }
         .labelsHidden()
@@ -40,9 +52,10 @@ struct AddView: View {
     /// Confirmation button to add the specified amount of alcohol.
     private var addButton: some View {
         Button(action: {
-            let amountInt = Int(self.amount)!
+            let mL = Int(self.mL) ?? 0
+            let drinkType = DrinkType(rawValue: self.drinkType)!
             let date = Date(daysFromNow: self.daysFromNow)
-            DataManager.shared.add(amount: amountInt, onDate: date)
+            DataManager.shared.add(mL: mL, type: drinkType, onDate: date)
             self.presentation.wrappedValue.dismiss()
         }, label: {
             Text("add.button")

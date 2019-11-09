@@ -18,7 +18,7 @@ struct ContentView: View {
                 }
                 Separator(axis: .horizontal)
             }
-            .navigationBarTitle("", displayMode: .inline)
+            .navigationBarTitle(Text("moderation"), displayMode: .inline)
             .navigationBarItems(trailing: addButton)
         }
         .sheet(isPresented: $showAddView) {
