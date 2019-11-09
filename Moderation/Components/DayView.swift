@@ -7,7 +7,7 @@ struct DayView: View {
 
     var body: some View {
         Group {
-            VStack(alignment: .center, spacing: 5) {
+            VStack(alignment: .center, spacing: 4) {
                 Text(day.date.displayString)
                     .padding(EdgeInsets(top: 20, leading: 0, bottom: 5, trailing: 0))
                 if totalStackCount > 0 {
@@ -38,7 +38,7 @@ struct DayView: View {
         let start = index * 5
         let end = min(totalStackCount, start + 5)
         let shouldAddSpacer = start + 5 > totalStackCount
-        return HStack(spacing: 5) {
+        return HStack(spacing: 2) {
             ForEach((start..<end), id: \.self) { index in
                 Text(self.string(at: index))
                     .opacity(index < self.day.mL.count ? 1.0 : 0.4)

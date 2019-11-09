@@ -1,4 +1,15 @@
 import Foundation
+import SwiftUI
+
+// MARK: - AnyTransition extensions
+
+extension AnyTransition {
+    static func fadeAndMove(edge: Edge) -> AnyTransition {
+        AnyTransition
+            .move(edge: edge)
+            .combined(with: .opacity)
+    }
+}
 
 // MARK: - Collection extensions
 

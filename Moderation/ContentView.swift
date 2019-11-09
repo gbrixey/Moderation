@@ -9,7 +9,7 @@ struct ContentView: View {
         NavigationView {
             VStack(spacing: 0) {
                 ScrollView([.horizontal], showsIndicators: false) {
-                    HStack(spacing: 20) {
+                    HStack(spacing: 15) {
                         Separator(axis: .vertical)
                         ForEach(dataManager.days, id: \.id) {
                             DayView(day: $0)

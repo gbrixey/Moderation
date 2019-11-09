@@ -1,5 +1,6 @@
-"add.button" = "ADD";
-"ml.placeholder" = "mL";
+"abv" = "ABV %";
+"add" = "ADD";
+"ml" = "mL";
 "moderation" = "Moderation";
 "today" = "Today";
 "tomorrow" = "Tomorrow";
