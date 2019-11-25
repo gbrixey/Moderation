@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The root view of the application.
-struct ContentView: View {
+struct MainView: View {
     @State private var showAddView = false
     @ObservedObject private var dataManager = DataManager.shared
 

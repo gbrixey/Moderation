@@ -18,7 +18,7 @@ enum DrinkType: Int, Codable, CaseIterable {
 class DataManager: ObservableObject {
     static let shared = DataManager()
 
-    /// Observable display data for the `ContentView`
+    /// Observable display data for the `MainView`
     @Published var days: [Day] = []
 
     init() {
