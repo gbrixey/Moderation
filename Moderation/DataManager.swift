@@ -39,7 +39,7 @@ class DataManager: ObservableObject {
     private let maxMLPerDay = 60
     private let maxMLPerWeek = 140
     /// A practical upper limit on the size of the array values in the `mL` dict
-    private let maxMLDictValue = 1000
+    private let maxMLDictValue = 2000
 
     private var mL: [Date: [DrinkType]] = [:]
     private let userDefaultsKey = "com.glenb.Moderation.DataManager.mL"

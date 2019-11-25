@@ -1,5 +1,7 @@
 "abv" = "ABV %";
-"add" = "ADD";
+"add" = "Add";
+"cancel" = "Cancel";
+"done" = "Done";
 "ml" = "mL";
 "moderation" = "Moderation";
 "today" = "Today";

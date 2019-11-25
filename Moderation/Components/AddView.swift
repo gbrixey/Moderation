@@ -9,27 +9,46 @@ struct AddView: View {
     @State private var mL = ""
 
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
-            HStack(spacing: 10) {
-                mLTextField
-                abvTextField
+        NavigationView {
+            VStack(alignment: .center, spacing: spacing) {
+                HStack(spacing: spacing) {
+                    mLTextField
+                    abvTextField
+                }
+                drinkTypePicker
+                datePicker
+                Spacer()
             }
-            drinkTypePicker
-            datePicker
-            addButton
-            Spacer()
+            .padding([.top], 20)
+            .navigationBarTitle("add", displayMode: .inline)
+            .navigationBarItems(leading: cancelButton, trailing: doneButton)
         }
-        .padding([.top], 20)
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 
     // MARK: - Private
+
+    private let spacing: CGFloat = 10
+    private let controlWidth: CGFloat = 320
+
+    private var cancelButton: some View {
+        Button(action: dismiss, label: {
+            Text("cancel")
+        })
+    }
+
+    private var doneButton: some View {
+        Button(action: add, label: {
+            Text("done")
+        })
+    }
 
     /// Text field for the amount of alcohol in milliliters.
     private var mLTextField: some View {
         TextField("ml", text: $mL)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
-            .frame(width: 120)
+            .frame(width: (controlWidth - spacing) / 2)
     }
 
     /// Text field for the alcohol ABV percentage.
@@ -37,7 +56,7 @@ struct AddView: View {
         TextField("abv", text: $abv)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.decimalPad)
-            .frame(width: 120)
+            .frame(width: (controlWidth - spacing) / 2)
             .transition(.fadeAndMove(edge: .trailing))
     }
 
@@ -49,7 +68,7 @@ struct AddView: View {
         }
         .pickerStyle(SegmentedPickerStyle())
         .labelsHidden()
-        .frame(width: 250)
+        .frame(width: controlWidth)
     }
 
     /// Picker for selecting the date the alcohol was consumed.
@@ -63,25 +82,20 @@ struct AddView: View {
         .border(Color(UIColor.systemGray3))
     }
 
-    /// Confirmation button to add the specified amount of alcohol.
-    private var addButton: some View {
-        Button(action: add, label: {
-            Text("add")
-                .bold()
-                .foregroundColor(.white)
-                .frame(width: 120, height: 40)
-                .background(Color(UIColor.systemBlue))
-                .cornerRadius(5)
-        })
-    }
-
     private func add() {
         let mL = Double(self.mL) ?? 0
+        guard mL > 0 else {
+            return dismiss()
+        }
         let abv = Double(self.abv) ?? 0
         let pureAlcoholML = Int(round(mL * (abv / 100)))
         let drinkType = DrinkType(rawValue: self.drinkType)!
         let date = Date(daysFromNow: daysFromNow)
         DataManager.shared.add(mL: pureAlcoholML, type: drinkType, onDate: date)
+        dismiss()
+    }
+
+    private func dismiss() {
         presentation.wrappedValue.dismiss()
     }
 }
