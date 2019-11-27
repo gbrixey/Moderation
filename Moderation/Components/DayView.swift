@@ -15,9 +15,7 @@ struct DayView: View {
                         self.hStack(at: index)
                     }
                 }
-                if day.mL.count > maxStackCount {
-                    Text("…")
-                } else if day.possibleML == 0 {
+                if day.possibleIcons == 0 {
                     Text("🚫")
                 }
                 Spacer()
@@ -28,10 +26,8 @@ struct DayView: View {
 
     // MARK: - Private
 
-    private let maxStackCount = 100
-
     private var totalStackCount: Int {
-        return min(maxStackCount, day.mL.count + (day.possibleML ?? 0))
+        return day.icons.count + (day.possibleIcons ?? 0)
     }
 
     private func hStack(at index: Int) -> some View {
@@ -41,7 +37,7 @@ struct DayView: View {
         return HStack(spacing: 2) {
             ForEach((start..<end), id: \.self) { index in
                 Text(self.string(at: index))
-                    .opacity(index < self.day.mL.count ? 1.0 : 0.4)
+                    .opacity(index < self.day.icons.count ? 1.0 : 0.4)
             }
             if shouldAddSpacer {
                 Spacer()
@@ -50,6 +46,6 @@ struct DayView: View {
     }
 
     private func string(at index: Int) -> String {
-        return String(drinkType: index < day.mL.count ? day.mL[index] : .beer)
+        return String(drinkType: index < day.icons.count ? day.icons[index] : .beer)
     }
 }

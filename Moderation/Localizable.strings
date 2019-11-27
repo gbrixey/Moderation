@@ -1,9 +1,14 @@
 "abv" = "ABV %";
 "add" = "Add";
+"allow.drinking.on.consecutive.days" = "Allow drinking on consecutive days";
 "cancel" = "Cancel";
+"daily.maximum.format" = "Daily Maximum: %d mL";
 "done" = "Done";
 "ml" = "mL";
+"ml.per.icon.format" = "Each icon represents %d mL";
 "moderation" = "Moderation";
+"settings" = "Settings";
 "today" = "Today";
 "tomorrow" = "Tomorrow";
+"weekly.maximum.format" = "Weekly Maximum: %d mL";
 "yesterday" = "Yesterday";

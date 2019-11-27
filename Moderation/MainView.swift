@@ -2,7 +2,8 @@ import SwiftUI
 
 /// The root view of the application.
 struct MainView: View {
-    @State private var showAddView = false
+    @State private var showModalView = false
+    @State private var modalViewType: ModalViewType = .settings
     @ObservedObject private var dataManager = DataManager.shared
 
     var body: some View {
@@ -19,19 +20,40 @@ struct MainView: View {
                 Separator(axis: .horizontal)
             }
             .navigationBarTitle(Text("moderation"), displayMode: .inline)
-            .navigationBarItems(trailing: addButton)
+            .navigationBarItems(leading: settingsButton, trailing: addButton)
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .sheet(isPresented: $showAddView) {
-            AddView()
+        .sheet(isPresented: $showModalView) {
+            if self.modalViewType == .settings {
+                SettingsView()
+            } else {
+                AddView()
+            }
         }
     }
 
     // MARK: - Private
 
+    private enum ModalViewType {
+        case settings
+        case add
+    }
+
+    private var settingsButton: some View {
+        Button(action: {
+            self.modalViewType = .settings
+            self.showModalView = true
+        }, label: {
+            Image(systemName: "slider.horizontal.3")
+                .foregroundColor(Color(UIColor.systemBlue))
+                .frame(width: 40, height: 40, alignment: .leading)
+        })
+    }
+
     private var addButton: some View {
         Button(action: {
-            self.showAddView = true
+            self.modalViewType = .add
+            self.showModalView = true
         }, label: {
             Image(systemName: "plus.circle")
                 .foregroundColor(Color(UIColor.systemBlue))

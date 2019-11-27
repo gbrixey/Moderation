@@ -4,8 +4,8 @@ import Foundation
 struct Day {
     let id = UUID()
     let date: Date
-    let mL: [DrinkType]
-    let possibleML: Int?
+    let icons: [DrinkType]
+    let possibleIcons: Int?
 }
 
 enum DrinkType: Int, Codable, CaseIterable {
@@ -21,58 +21,90 @@ class DataManager: ObservableObject {
     /// Observable display data for the `MainView`
     @Published var days: [Day] = []
 
+    private(set) var maxMLPerDay = DataManager.defaultMaxMLPerDay
+    private(set) var maxMLPerWeek = DataManager.defaultMaxMLPerWeek
+    private(set) var allowDrinkingOnConsecutiveDays = DataManager.defaultAllowDrinkingOnConsecutiveDays
+    private(set) var mLPerIcon = DataManager.defaultMLPerIcon
+
     init() {
         loadFromUserDefaults()
         calculateDisplayData()
     }
 
     func add(mL: Int, type: DrinkType, onDate date: Date) {
-        let existingML = self.mL[date] ?? []
-        let countToAdd = min(mL, maxMLDictValue - existingML.count)
-        self.mL[date] = existingML + [DrinkType](repeating: type, count: countToAdd)
+        let existingEntries = self.entries[date] ?? []
+        self.entries[date] = existingEntries + [DrinkEntry(type: type, mL: mL)]
         calculateDisplayData()
         saveToUserDefaults()
     }
 
+    func updateSettings(maxMLPerDay: Int, maxMLPerWeek: Int, allowDrinkingOnConsecutiveDays: Bool, mLPerIcon: Int) {
+        self.maxMLPerDay = maxMLPerDay
+        self.maxMLPerWeek = maxMLPerWeek
+        self.allowDrinkingOnConsecutiveDays = allowDrinkingOnConsecutiveDays
+        self.mLPerIcon = mLPerIcon
+        saveToUserDefaults()
+        calculateDisplayData()
+    }
+
     // MARK: - Private
 
-    private let maxMLPerDay = 60
-    private let maxMLPerWeek = 140
-    /// A practical upper limit on the size of the array values in the `mL` dict
-    private let maxMLDictValue = 2000
+    private struct DrinkEntry: Codable {
+        let type: DrinkType
+        let mL: Int
+    }
 
-    private var mL: [Date: [DrinkType]] = [:]
-    private let userDefaultsKey = "com.glenb.Moderation.DataManager.mL"
+    private let userDefaultsKeyEntries = "com.glenb.Moderation.DataManager.entries"
+    private let userDefaultsKeyMaxMLPerDay = "com.glenb.Moderation.DataManager.maxMLPerDay"
+    private let userDefaultsKeyMaxMLPerWeek = "com.glenb.Moderation.DataManager.maxMLPerWeek"
+    private let userDefaultsKeyAllowDrinkingOnConsecutiveDays = "com.glenb.Moderation.DataManager.allowDrinkingOnConsecutiveDays"
+    private let userDefaultsKeyMLPerIcon = "com.glenb.Moderation.DataManager.mLPerIcon"
 
-    private func calculateDisplayData() {
+    private static let defaultMaxMLPerDay = 60
+    private static let defaultMaxMLPerWeek = 140
+    private static let defaultAllowDrinkingOnConsecutiveDays = false
+    private static let defaultMLPerIcon = 1
+
+    private var entries: [Date: [DrinkEntry]] = [:]
+
+    func calculateDisplayData() {
         let firstDayToShow = -6
         var lastDayToShow = dateOfNextPossibleDrink().daysFromNow
-        if lastDayToShow == 0 && amount(on: Date()) > 0 {
+        if lastDayToShow == 0 && mL(on: Date()) > 0 {
             lastDayToShow += 1
         }
         days = (firstDayToShow...lastDayToShow).reversed().map { daysFromNow -> Day in
             let date = Date(daysFromNow: daysFromNow)
-            let mL = self.mL[date] ?? []
+            let entries = self.entries[date] ?? []
+            let icons = entries.flatMap { entry -> [DrinkType] in
+                let iconCount = Int(round(Double(entry.mL) / Double(mLPerIcon)))
+                return [DrinkType](repeating: entry.type, count: iconCount)
+            }
             // Don't show possible amounts for days in the past
-            let possibleML: Int? = daysFromNow >= 0 ? self.possibleML(on: date) : nil
-            return Day(date: date, mL: mL, possibleML: possibleML)
+            var possibleIcons: Int?
+            if daysFromNow >= 0 {
+                possibleIcons = Int(round(Double(possibleML(on: date)) / Double(mLPerIcon)))
+            }
+            return Day(date: date, icons: icons, possibleIcons: possibleIcons)
         }
     }
 
-    private func amount(on date: Date) -> Int {
+    private func mL(on date: Date) -> Int {
         let startOfDate = Calendar.autoupdatingCurrent.startOfDay(for: date)
-        return mL[startOfDate]?.count ?? 0
+        let entries = self.entries[startOfDate] ?? []
+        return entries.reduce(0) { count, entry -> Int in
+            return count + entry.mL
+        }
     }
 
     private func possibleML(on date: Date) -> Int {
         let startOfDate = Calendar.autoupdatingCurrent.startOfDay(for: date)
-        let amountsInPastWeek = (-6...0).map { amount(on: startOfDate.addingDays($0)) }
-        // No drinking on consecutive days
-        if amountsInPastWeek[5] > 0 {
+        let mLInPastWeek = (-6...0).map { mL(on: startOfDate.addingDays($0)) }
+        if !allowDrinkingOnConsecutiveDays && mLInPastWeek[5] > 0 {
             return 0
         }
-        let remainingMLThisDay = max(0, maxMLPerDay - amountsInPastWeek[6])
-        let remainingMLThisWeek = max(0, maxMLPerWeek - amountsInPastWeek.sum)
+        let remainingMLThisDay = max(0, maxMLPerDay - mLInPastWeek[6])
+        let remainingMLThisWeek = max(0, maxMLPerWeek - mLInPastWeek.sum)
         return min(remainingMLThisDay, remainingMLThisWeek)
     }
 
@@ -85,21 +117,33 @@ class DataManager: ObservableObject {
     }
 
     private func loadFromUserDefaults() {
-        if let data = UserDefaults.standard.object(forKey: userDefaultsKey) as? Data,
-            let mL = try? JSONDecoder().decode([Date: [DrinkType]].self, from: data) {
-            self.mL = mL
+        func userDefaultsInteger(key: String, defaultValue: Int) -> Int {
+            let value = UserDefaults.standard.integer(forKey: key)
+            return value > 0 ? value : defaultValue
+        }
+        maxMLPerDay = userDefaultsInteger(key: userDefaultsKeyMaxMLPerDay, defaultValue: DataManager.defaultMaxMLPerDay)
+        maxMLPerWeek = userDefaultsInteger(key: userDefaultsKeyMaxMLPerWeek, defaultValue: DataManager.defaultMaxMLPerWeek)
+        allowDrinkingOnConsecutiveDays = UserDefaults.standard.bool(forKey: userDefaultsKeyAllowDrinkingOnConsecutiveDays)
+        mLPerIcon = userDefaultsInteger(key: userDefaultsKeyMLPerIcon, defaultValue: DataManager.defaultMLPerIcon)
+        if let data = UserDefaults.standard.object(forKey: userDefaultsKeyEntries) as? Data,
+            let entries = try? JSONDecoder().decode([Date: [DrinkEntry]].self, from: data) {
+            self.entries = entries
         }
         // Remove old data
-        for date in mL.keys {
+        for date in entries.keys {
             if date.daysFromNow < -10 {
-                mL.removeValue(forKey: date)
+                entries.removeValue(forKey: date)
             }
         }
     }
 
     private func saveToUserDefaults() {
-        if let data = try? JSONEncoder().encode(mL) {
-            UserDefaults.standard.set(data, forKey: userDefaultsKey)
+        UserDefaults.standard.set(maxMLPerDay, forKey: userDefaultsKeyMaxMLPerDay)
+        UserDefaults.standard.set(maxMLPerWeek, forKey: userDefaultsKeyMaxMLPerWeek)
+        UserDefaults.standard.set(allowDrinkingOnConsecutiveDays, forKey: userDefaultsKeyAllowDrinkingOnConsecutiveDays)
+        UserDefaults.standard.set(mLPerIcon, forKey: userDefaultsKeyMLPerIcon)
+        if let data = try? JSONEncoder().encode(entries) {
+            UserDefaults.standard.set(data, forKey: userDefaultsKeyEntries)
         }
     }
 }
