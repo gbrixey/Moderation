@@ -49,3 +49,15 @@ struct DayView: View {
         return String(drinkType: index < day.icons.count ? day.icons[index] : .beer)
     }
 }
+
+struct DayView_Previews: PreviewProvider {
+    static var previews: some View {
+        DayView(day: Day(date: Date(),
+                         icons: [.beer, .beer, .beer, .beer, .beer,
+                                 .beer, .beer, .beer, .beer, .beer,
+                                 .wine, .wine, .wine, .wine, .wine,
+                                 .wine, .wine, .wine, .wine, .wine],
+                         possibleIcons: 40))
+            .previewLayout(.sizeThatFits)
+    }
+}

@@ -73,3 +73,9 @@ struct SettingsView: View {
         presentation.wrappedValue.dismiss()
     }
 }
+
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        SettingsView()
+    }
+}
