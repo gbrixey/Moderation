@@ -10,6 +10,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 10) {
+                Text("settings.header")
                 Text(maxMLPerDayText)
                 Slider(value: self.$maxMLPerDay, in: 1...100, step: 1.0)
 

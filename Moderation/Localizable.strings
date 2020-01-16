@@ -8,6 +8,7 @@
 "ml.per.icon.format" = "Each icon represents %d mL";
 "moderation" = "Moderation";
 "settings" = "Settings";
+"settings.header" = "Measurements represent pure ethanol.";
 "today" = "Today";
 "tomorrow" = "Tomorrow";
 "weekly.maximum.format" = "Weekly Maximum: %d mL";
