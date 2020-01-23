@@ -47,6 +47,10 @@ class DataManager: ObservableObject {
         calculateDisplayData()
     }
 
+    func refresh() {
+        calculateDisplayData()
+    }
+
     // MARK: - Private
 
     private struct DrinkEntry: Codable {

@@ -9,6 +9,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        dateEnteredBackground = Date()
+    }
+
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        // Refresh if today's date has changed since entering background.
+        if let dateEnteredBackground = dateEnteredBackground, dateEnteredBackground.daysFromNow < 0 {
+            DataManager.shared.refresh()
+        }
+        dateEnteredBackground = nil
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        dateEnteredBackground = nil
+    }
+
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication,
@@ -24,4 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
+
+    // MARK: - Private
+
+    /// Date value that is stored when the app enters background.
+    private var dateEnteredBackground: Date?
 }
