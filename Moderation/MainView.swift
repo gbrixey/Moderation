@@ -1,9 +1,11 @@
 import SwiftUI
+import Combine
 
 /// The root view of the application.
 struct MainView: View {
     @State private var showModalView = false
     @State private var modalViewType: ModalViewType = .settings
+    @ObservedObject private var volumeUnitObservable = VolumeUnitObservable()
     @ObservedObject private var dataManager = DataManager.shared
 
     var body: some View {
@@ -25,9 +27,9 @@ struct MainView: View {
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $showModalView) {
             if self.modalViewType == .settings {
-                SettingsView()
+                SettingsView(volumeUnit: self.$volumeUnitObservable.volumeUnit)
             } else {
-                AddView()
+                AddView(volumeUnit: self.$volumeUnitObservable.volumeUnit)
             }
         }
     }
@@ -61,6 +63,21 @@ struct MainView: View {
         })
     }
 }
+
+// MARK: - Observable Objects
+
+class VolumeUnitObservable: ObservableObject {
+    let objectWillChange = PassthroughSubject<Void, Never>()
+
+    @UserDefaultsWrapped(key: "com.glenb.Moderation.MainView.volumeUnit", defaultValue: VolumeUnit.mL.rawValue)
+    fileprivate(set) var volumeUnit: Int {
+        willSet {
+            objectWillChange.send()
+        }
+    }
+}
+
+// MARK: - Previews
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {

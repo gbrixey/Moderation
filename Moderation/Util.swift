@@ -78,4 +78,30 @@ extension String {
             self = "🍸"
         }
     }
+
+    init(volumeUnit: VolumeUnit) {
+        switch volumeUnit {
+        case .mL:
+            self.init(key: "mL")
+        case .oz:
+            self.init(key: "oz")
+        }
+    }
+}
+
+// MARK: - UserDefaults wrapper
+
+@propertyWrapper
+struct UserDefaultsWrapped<T> {
+    let key: String
+    let defaultValue: T
+
+    var wrappedValue: T {
+        get {
+            return (UserDefaults.standard.object(forKey: key) as? T) ?? defaultValue
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: key)
+        }
+    }
 }

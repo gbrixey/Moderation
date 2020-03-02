@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.presentationMode) var presentation
+    @Binding var volumeUnit: Int
     @State private var maxMLPerDay = Double(DataManager.shared.maxMLPerDay)
     @State private var maxMLPerWeek = Double(DataManager.shared.maxMLPerWeek)
     @State private var allowDrinkingOnConsecutiveDays = DataManager.shared.allowDrinkingOnConsecutiveDays
@@ -28,6 +29,13 @@ struct SettingsView: View {
                 Text(mLPerIconText)
                     .padding([.top], 20)
                 Slider(value: self.$mLPerIcon, in: 1...10, step: 1.0)
+
+                HStack(spacing: 10) {
+                    Text("input.type")
+                    Spacer()
+                    volumeUnitPicker
+                }
+                .padding([.top], 20)
 
                 Spacer()
             }
@@ -66,6 +74,16 @@ struct SettingsView: View {
         return String(format: String(key: "ml.per.icon.format"), Int(mLPerIcon))
     }
 
+    private var volumeUnitPicker: some View {
+        Picker("", selection: $volumeUnit) {
+            ForEach((0..<VolumeUnit.allCases.count), id: \.self) {
+                Text(String(volumeUnit: VolumeUnit(rawValue: $0)!))
+            }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .labelsHidden()
+    }
+
     private func applySettings() {
         DataManager.shared.updateSettings(maxMLPerDay: Int(maxMLPerDay),
                                           maxMLPerWeek: Int(maxMLPerWeek),
@@ -75,8 +93,10 @@ struct SettingsView: View {
     }
 }
 
+// MARK: - Previews
+
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView()
+        SettingsView(volumeUnit: .constant(VolumeUnit.mL.rawValue))
     }
 }

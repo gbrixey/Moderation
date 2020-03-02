@@ -50,6 +50,8 @@ struct DayView: View {
     }
 }
 
+// MARK: - Previews
+
 struct DayView_Previews: PreviewProvider {
     static var previews: some View {
         DayView(day: Day(date: Date(),

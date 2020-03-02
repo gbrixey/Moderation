@@ -3,16 +3,17 @@ import SwiftUI
 /// View that records an amount of alcohol consumed.
 struct AddView: View {
     @Environment(\.presentationMode) var presentation
+    @Binding var volumeUnit: Int
     @State private var drinkType = 0
     @State private var daysFromNow = 0
     @State private var abv = ""
-    @State private var mL = ""
+    @State private var amount = ""
 
     var body: some View {
         NavigationView {
             VStack(alignment: .center, spacing: spacing) {
                 HStack(spacing: spacing) {
-                    mLTextField
+                    amountTextField
                     abvTextField
                 }
                 drinkTypePicker
@@ -31,6 +32,10 @@ struct AddView: View {
     private let spacing: CGFloat = 10
     private let controlWidth: CGFloat = 320
 
+    private var volumeUnitEnum: VolumeUnit {
+        return VolumeUnit(rawValue: volumeUnit)!
+    }
+
     private var cancelButton: some View {
         Button(action: dismiss, label: {
             Text("cancel")
@@ -44,8 +49,8 @@ struct AddView: View {
     }
 
     /// Text field for the amount of alcohol in milliliters.
-    private var mLTextField: some View {
-        TextField("ml", text: $mL)
+    private var amountTextField: some View {
+        TextField(String(volumeUnit: volumeUnitEnum), text: $amount)
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .keyboardType(.numberPad)
             .frame(width: (controlWidth - spacing) / 2)
@@ -83,10 +88,11 @@ struct AddView: View {
     }
 
     private func add() {
-        let mL = Double(self.mL) ?? 0
-        guard mL > 0 else {
+        let amount = Double(self.amount) ?? 0
+        guard amount > 0 else {
             return dismiss()
         }
+        let mL = amount * volumeUnitEnum.mLMultiplier
         let abv = Double(self.abv) ?? 0
         let pureAlcoholML = Int(round(mL * (abv / 100)))
         let drinkType = DrinkType(rawValue: self.drinkType)!
@@ -100,8 +106,10 @@ struct AddView: View {
     }
 }
 
+// MARK: - Previews
+
 struct AddView_Previews: PreviewProvider {
     static var previews: some View {
-        AddView()
+        AddView(volumeUnit: .constant(VolumeUnit.mL.rawValue))
     }
 }

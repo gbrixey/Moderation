@@ -15,6 +15,20 @@ enum DrinkType: Int, Codable, CaseIterable {
     case cocktail
 }
 
+enum VolumeUnit: Int, Codable, CaseIterable {
+    case mL
+    case oz
+
+    var mLMultiplier: Double {
+        switch self {
+        case .mL:
+            return 1
+        case .oz:
+            return 29.5735
+        }
+    }
+}
+
 class DataManager: ObservableObject {
     static let shared = DataManager()
 
