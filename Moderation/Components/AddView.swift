@@ -14,7 +14,12 @@ struct AddView: View {
             VStack(alignment: .center, spacing: spacing) {
                 HStack(spacing: spacing) {
                     amountTextField
-                    abvTextField
+                    ZStack(alignment: .trailing) {
+                        abvTextField
+                        Text("%")
+                            .foregroundColor(Color(.systemGray2))
+                            .padding([.leading, .trailing], 8)
+                    }
                 }
                 drinkTypePicker
                 datePicker
@@ -93,7 +98,7 @@ struct AddView: View {
             return dismiss()
         }
         let mL = amount * volumeUnitEnum.mLMultiplier
-        let abv = Double(self.abv) ?? 0
+        let abv = min((Double(self.abv) ?? 0), 100)
         let pureAlcoholML = Int(round(mL * (abv / 100)))
         let drinkType = DrinkType(rawValue: self.drinkType)!
         let date = Date(daysFromNow: daysFromNow)
