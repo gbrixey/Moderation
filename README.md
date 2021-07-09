@@ -1,6 +1,6 @@
 # Moderation
 
-<img src="https://raw.githubusercontent.com/gbrixey/Moderation/master/screenshot.png" alt="Screenshot of the Moderation app" width="250" />
+<img src="https://raw.githubusercontent.com/gbrixey/Moderation/main/screenshot.png" alt="Screenshot of the Moderation app" width="250" />
 
 This is an app designed to help the user track and moderate their drinking habits.
 
